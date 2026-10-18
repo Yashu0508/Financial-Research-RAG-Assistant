@@ -1,0 +1,3 @@
+# pyproject.toml is the canonical dependency source.
+# This installs the application plus its development/test extra.
+-e .[dev]

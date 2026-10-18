@@ -1,0 +1,204 @@
+{
+  "dataset_id": "sec-keyword-retrieval-v2",
+  "dataset_version": "2.0",
+  "corpus": {
+    "manifest_id": "sec-filings-local-v1",
+    "evidence_chunking_version": "1.0",
+    "scope": "admitted narrative chunks only"
+  },
+  "labeling_method": "Each answerable judgment was made by manually reading the retained narrative chunk and verifying its document ID, source hash, and source locator in the admitted evidence artifact. Retrieval keyword overlap alone was not used as a relevance criterion.",
+  "cases": [
+    {
+      "case_id": "aapl-2024-geographic-segments",
+      "status": "answerable",
+      "question": "What geographic reportable segments does Apple identify in its 2024 Form 10-K?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "4c3f7f8bf474cf050253a3b3", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:72:div"}],
+      "labeling_basis": "Manual review: this chunk names the Americas, Europe, Greater China, Japan, and Rest of Asia Pacific reportable segments."
+    },
+    {
+      "case_id": "aapl-2024-seasonality",
+      "status": "answerable",
+      "question": "What does Apple say about fiscal-quarter seasonality in its 2024 Form 10-K?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "7dba253e0d95da92a66d169c", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:90:div"}],
+      "labeling_basis": "Manual review: this chunk states that Apple historically experiences higher first-quarter net sales because of seasonal holiday demand."
+    },
+    {
+      "case_id": "aapl-2024-supply-chain-risks",
+      "status": "answerable",
+      "question": "What supply-chain and component-sourcing risks does Apple describe in its 2024 Form 10-K?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [
+        {"evidence_type": "narrative", "chunk_id": "21ddaadf01a440f7c5dc70a2", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:80:div"},
+        {"evidence_type": "narrative", "chunk_id": "14d59f55ab5d350eefe827d3", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:140:div"},
+        {"evidence_type": "narrative", "chunk_id": "3f2e14dba5c3dd4faff62ffd", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:144:div"},
+        {"evidence_type": "narrative", "chunk_id": "de4347ee284550eb92e77ca8", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:148:div"}
+      ],
+      "labeling_basis": "Manual review: the four chunks jointly cover limited/custom component sources, outsourced manufacturing/logistics, supplier disruption, and constrained component supply."
+    },
+    {
+      "case_id": "aapl-2024-foreign-currency-risk",
+      "status": "answerable",
+      "question": "How can foreign-currency movements affect Apple according to its 2024 Form 10-K?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "482de35860f9a41dc569018a", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:221:div"}],
+      "labeling_basis": "Manual review: this chunk discusses non-U.S.-dollar sales, costs, earnings, pricing, and foreign-exchange exposure."
+    },
+    {
+      "case_id": "aapl-2024-services-growth",
+      "status": "answerable",
+      "question": "What drove Apple's Services net-sales increase in fiscal 2024?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "02eeaeaff8252c91355e1a10", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:316:div"}],
+      "labeling_basis": "Manual review: this chunk attributes Services growth to advertising, the App Store, and cloud services."
+    },
+    {
+      "case_id": "aapl-2024-capital-return",
+      "status": "answerable",
+      "question": "What did Apple report about its fiscal 2024 capital return program?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "bc1e3081844e2a77a2cf2e5c", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:361:div"}],
+      "labeling_basis": "Manual review: this chunk states the repurchase authorization, dividend change, 2024 repurchases, and dividends paid."
+    },
+    {
+      "case_id": "aapl-2024-product-services-margin-risk",
+      "status": "answerable",
+      "question": "How does Apple describe differences and risks in product and services gross margins?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "169484d0561050734c7855ac", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "element:219:div"}],
+      "labeling_basis": "Manual review: this retained risk-factor chunk says margins vary across products and services and identifies margin-pressure factors."
+    },
+    {
+      "case_id": "aapl-q1-2024-total-sales",
+      "status": "answerable",
+      "question": "What drove Apple's total net-sales change in the first quarter of fiscal 2024?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2023-12-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "696112ceb1f7370f8b1423b9", "document_id": "aapl-fy2024-q1-10q", "source_sha256": "aa6bc5b22d1c6065798adb0d388624f1fa21a78cf2d0007311eea05563042c8a", "source_locator": "element:134:div"}],
+      "labeling_basis": "Manual review: this chunk reports the 2% total-sales increase and the contributing product categories."
+    },
+    {
+      "case_id": "aapl-q1-2024-gross-margin",
+      "status": "answerable",
+      "question": "What factors affected Apple's product and services gross margins in fiscal 2024 Q1?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2023-12-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "0c7857e18ada3297582cf695", "document_id": "aapl-fy2024-q1-10q", "source_sha256": "aa6bc5b22d1c6065798adb0d388624f1fa21a78cf2d0007311eea05563042c8a", "source_locator": "element:166:div"}],
+      "labeling_basis": "Manual review: this chunk explains the product and services gross-margin changes for the quarter."
+    },
+    {
+      "case_id": "aapl-q2-2024-services-growth",
+      "status": "answerable",
+      "question": "What drove Apple's Services net-sales growth in fiscal 2024 Q2?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2024-03-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "d0c0d70f57392a2499049368", "document_id": "aapl-fy2024-q2-10q", "source_sha256": "c5f42a0277d1e184a33c8f9e484afdee8b3a8b90ddfde0bfda7498de14ce80f8", "source_locator": "element:159:div"}],
+      "labeling_basis": "Manual review: this chunk attributes Services growth to advertising, the App Store, and cloud services."
+    },
+    {
+      "case_id": "aapl-q2-2024-rd-expense",
+      "status": "answerable",
+      "question": "What drove Apple's research and development expense growth in fiscal 2024 Q2?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2024-03-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "cb2bb90fd2a74c399c2e8080", "document_id": "aapl-fy2024-q2-10q", "source_sha256": "c5f42a0277d1e184a33c8f9e484afdee8b3a8b90ddfde0bfda7498de14ce80f8", "source_locator": "element:173:div"}],
+      "labeling_basis": "Manual review: this chunk attributes the increase to headcount-related expenses."
+    },
+    {
+      "case_id": "aapl-q2-2024-capital-return",
+      "status": "answerable",
+      "question": "What capital-return program information did Apple disclose in fiscal 2024 Q2?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2024-03-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "0fd893e769c2a751051a2c2f", "document_id": "aapl-fy2024-q2-10q", "source_sha256": "c5f42a0277d1e184a33c8f9e484afdee8b3a8b90ddfde0bfda7498de14ce80f8", "source_locator": "element:185:div"}],
+      "labeling_basis": "Manual review: this chunk states remaining authorization, the new authorization, and the Board's dividend action."
+    },
+    {
+      "case_id": "msft-2024-cash-from-operations",
+      "status": "answerable",
+      "question": "What does Microsoft's 2024 filing say about cash from operations?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "1a637f5ad8f15028f954c0f7", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "element:652:p"}],
+      "labeling_basis": "Manual review: this chunk states fiscal-2024 cash from operations and its stated primary driver."
+    },
+    {
+      "case_id": "msft-2024-cloud-gross-margin",
+      "status": "answerable",
+      "question": "What was the Microsoft Cloud gross margin percentage in 2024?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "781b962ce0fc9d395f307b25", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "element:564:div"}],
+      "labeling_basis": "Manual review: this chunk explicitly states the reported Microsoft Cloud gross-margin percentage."
+    },
+    {
+      "case_id": "msft-2024-share-repurchases-dividends",
+      "status": "answerable",
+      "question": "What did Microsoft report about fiscal 2024 share repurchases and dividends?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "80fbe334dc1e28523cb49546", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "element:673:p"}],
+      "labeling_basis": "Manual review: this chunk reports repurchased shares/value, remaining authorization, and declared dividends."
+    },
+    {
+      "case_id": "msft-2024-segment-definition",
+      "status": "answerable",
+      "question": "Which reportable segments does Microsoft identify in its 2024 Form 10-K?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "d720e84a10bfb3a764343f75", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "element:1112:p"}],
+      "labeling_basis": "Manual review: this segment-information chunk names Productivity and Business Processes, Intelligent Cloud, and More Personal Computing."
+    },
+    {
+      "case_id": "msft-q2-2024-intelligent-cloud-performance",
+      "status": "answerable",
+      "question": "What did Microsoft report about Intelligent Cloud performance in fiscal 2024 Q2?",
+      "filters": {"ticker": "MSFT", "form_type": "10-Q", "reporting_period_end": "2023-12-31"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "8e0f63d6eb777634e2f678d7", "document_id": "msft-fy2024-q2-10q", "source_sha256": "e3509bf1e77fc27bd7c9053df0787e2ed89864e68c63cf7e2208594abb22bfad", "source_locator": "element:430:p"}],
+      "labeling_basis": "Manual review: this chunk reports Intelligent Cloud revenue, Azure/cloud-services growth, operating income, and gross-margin discussion."
+    },
+    {
+      "case_id": "msft-q2-2024-capital-return",
+      "status": "answerable",
+      "question": "What did Microsoft report about share repurchases and dividends for the first six months of fiscal 2024?",
+      "filters": {"ticker": "MSFT", "form_type": "10-Q", "reporting_period_end": "2023-12-31"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "deee9e032e62e79991a9a2ba", "document_id": "msft-fy2024-q2-10q", "source_sha256": "e3509bf1e77fc27bd7c9053df0787e2ed89864e68c63cf7e2208594abb22bfad", "source_locator": "element:519:p"}],
+      "labeling_basis": "Manual review: this chunk states six-month repurchases, remaining authorization, and dividends."
+    },
+    {
+      "case_id": "msft-q2-2024-competition-risk",
+      "status": "answerable",
+      "question": "What competitive risk does Microsoft describe in its fiscal 2024 Q2 filing?",
+      "filters": {"ticker": "MSFT", "form_type": "10-Q", "reporting_period_end": "2023-12-31"},
+      "expected_relevant_evidence": [{"evidence_type": "narrative", "chunk_id": "2fa28ef1e8eda3a203c41a49", "document_id": "msft-fy2024-q2-10q", "source_sha256": "e3509bf1e77fc27bd7c9053df0787e2ed89864e68c63cf7e2208594abb22bfad", "source_locator": "element:580:p"}],
+      "labeling_basis": "Manual review: this risk-factor chunk states that intense competition may lower revenue or operating margins."
+    },
+    {
+      "case_id": "msft-q2-2024-cloud-execution-risk",
+      "status": "answerable",
+      "question": "What cloud-service execution and competitive risks does Microsoft describe in fiscal 2024 Q2?",
+      "filters": {"ticker": "MSFT", "form_type": "10-Q", "reporting_period_end": "2023-12-31"},
+      "expected_relevant_evidence": [
+        {"evidence_type": "narrative", "chunk_id": "04be857f9127ece5a01a93d4", "document_id": "msft-fy2024-q2-10q", "source_sha256": "e3509bf1e77fc27bd7c9053df0787e2ed89864e68c63cf7e2208594abb22bfad", "source_locator": "element:606:p"},
+        {"evidence_type": "narrative", "chunk_id": "561dd8b67c967c4c86b2aefc", "document_id": "msft-fy2024-q2-10q", "source_sha256": "e3509bf1e77fc27bd7c9053df0787e2ed89864e68c63cf7e2208594abb22bfad", "source_locator": "element:611:div"}
+      ],
+      "labeling_basis": "Manual review: the first chunk frames cloud execution/competition risk; the second enumerates reliability, security, platform, and market-share requirements."
+    },
+    {
+      "case_id": "aapl-2024-vision-pro-revenue",
+      "status": "unanswerable",
+      "question": "What was Apple's fiscal 2024 revenue from Apple Vision Pro?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [],
+      "labeling_basis": "Manual review: the admitted narrative evidence does not provide a fiscal-2024 revenue amount specifically for Apple Vision Pro."
+    },
+    {
+      "case_id": "msft-2024-copilot-revenue",
+      "status": "unanswerable",
+      "question": "What was Microsoft's fiscal 2024 revenue from Copilot?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [],
+      "labeling_basis": "Manual review: the admitted narrative evidence does not disclose a standalone fiscal-2024 Copilot revenue amount."
+    },
+    {
+      "case_id": "aapl-q2-2024-india-net-sales",
+      "status": "unanswerable",
+      "question": "What were Apple's India net sales in fiscal 2024 Q2?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2024-03-30"},
+      "expected_relevant_evidence": [],
+      "labeling_basis": "Manual review: the admitted Q2 narrative reports geographical segments but does not disclose a standalone India net-sales amount."
+    }
+  ]
+}

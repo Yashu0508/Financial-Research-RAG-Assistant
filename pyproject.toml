@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=75,<82"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "financial-research-rag"
+version = "0.1.0"
+description = "Architecture scaffold for an evidence-based financial filing research assistant"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "Proprietary" }
+authors = [{ name = "Project contributors" }]
+dependencies = [
+    "fastapi==0.139.0",
+    "pydantic-settings==2.14.2",
+    "uvicorn==0.34.0",
+]
+
+[project.optional-dependencies]
+storage = [
+    "psycopg[binary]==3.2.10",
+]
+semantic = [
+    "numpy==2.5.4",
+    "sentence-transformers==6.1.0",
+    "torch==2.14.1",
+    "transformers==5.20.1",
+]
+generation = [
+    "openai==3.34.0",
+]
+gemini = ["google-genai==2.31.0"]
+ui = ["streamlit==1.66.0"]
+verification = [
+    "beautifulsoup4==4.15.0",
+    "lxml==6.1.1",
+]
+dev = [
+    "beautifulsoup4==4.15.0",
+    "httpx==0.28.1",
+    "lxml==6.1.1",
+    "pytest==8.4.2",
+    "ruff==0.16.10",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

@@ -1,0 +1,91 @@
+{
+  "dataset_id": "sec-table-retrieval-judgments-v1",
+  "dataset_version": "1.0",
+  "scope": "manually reviewed admitted structured table evidence; validation-only until a table retriever exists",
+  "labeling_method": "Each answerable judgment was checked against an admitted table-evidence record and its rows/cells, original HTML table index, parser table ID, source locator, source hash, and the existing statement-table QA candidate mapping.",
+  "cases": [
+    {
+      "case_id": "aapl-2024-income-statement-table",
+      "status": "answerable",
+      "question": "Which Apple fiscal 2024 table contains net sales, gross margin, and operating expenses?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "85109057fb445f0ea176a2fb", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "table:23", "original_html_table_index": 23, "parser_table_id": "44f6b730d1f15c83d77e2d67"}],
+      "labeling_basis": "Manual review: the admitted table is the QA-mapped income statement and its rows include Products, Services, total net sales, gross margin, and operating expenses."
+    },
+    {
+      "case_id": "aapl-2024-balance-sheet-table",
+      "status": "answerable",
+      "question": "Which Apple fiscal 2024 table reports cash, marketable securities, assets, and liabilities?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "6af81723cea39d3be2008d37", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "table:25", "original_html_table_index": 25, "parser_table_id": "c3cc02095f6df637144f7ec0"}],
+      "labeling_basis": "Manual review: the QA-mapped balance-sheet table has the September 2024/2023 columns and asset/liability rows."
+    },
+    {
+      "case_id": "aapl-2024-cash-flow-table",
+      "status": "answerable",
+      "question": "Which Apple fiscal 2024 table reports operating, investing, and financing cash flows?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "cba90b4d1eb2e30e49a4d7b2", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "table:27", "original_html_table_index": 27, "parser_table_id": "5bd6c4cd17921cbf41775b49"}],
+      "labeling_basis": "Manual review: the QA-mapped cash-flow statement preserves the yearly cash-flow columns and cash-flow rows."
+    },
+    {
+      "case_id": "msft-2024-income-statement-table",
+      "status": "answerable",
+      "question": "Which Microsoft fiscal 2024 table contains revenue, gross margin, and operating income?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "1dc1e8ea04e94724dff7471c", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "table:25", "original_html_table_index": 25, "parser_table_id": "ec547345eb61413cb6e68bc6"}],
+      "labeling_basis": "Manual review: the QA-mapped income statement retains the fiscal 2024/2023/2022 columns and income-statement rows."
+    },
+    {
+      "case_id": "msft-2024-cash-flow-table",
+      "status": "answerable",
+      "question": "Which Microsoft fiscal 2024 table reports cash from operating, investing, and financing activities?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "9999d6376cb15f539060d0cd", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "table:28", "original_html_table_index": 28, "parser_table_id": "c1782ee541197a8a7f86b2b4"}],
+      "labeling_basis": "Manual review: the QA-mapped cash-flow statement preserves the annual cash-flow periods and statement rows."
+    },
+    {
+      "case_id": "aapl-q2-2024-income-statement-table",
+      "status": "answerable",
+      "question": "Which Apple fiscal 2024 Q2 table reports product and services net sales for the quarter and six months?",
+      "filters": {"ticker": "AAPL", "form_type": "10-Q", "reporting_period_end": "2024-03-30"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "a905523f71729df647faab4d", "document_id": "aapl-fy2024-q2-10q", "source_sha256": "c5f42a0277d1e184a33c8f9e484afdee8b3a8b90ddfde0bfda7498de14ce80f8", "source_locator": "table:13", "original_html_table_index": 13, "parser_table_id": "4db84c8fe965dba71e62d980"}],
+      "labeling_basis": "Manual review: the QA-mapped quarterly income statement contains Product, Services, total net sales, and three/six-month periods."
+    },
+    {
+      "case_id": "msft-q2-2024-balance-sheet-table",
+      "status": "answerable",
+      "question": "Which Microsoft fiscal 2024 Q2 table reports assets and liabilities as of December 31, 2023?",
+      "filters": {"ticker": "MSFT", "form_type": "10-Q", "reporting_period_end": "2023-12-31"},
+      "expected_relevant_evidence": [{"evidence_type": "table", "table_evidence_id": "85ee89841c6bf7ccca1d6c33", "document_id": "msft-fy2024-q2-10q", "source_sha256": "e3509bf1e77fc27bd7c9053df0787e2ed89864e68c63cf7e2208594abb22bfad", "source_locator": "table:9", "original_html_table_index": 9, "parser_table_id": "8cacb6255517f5c04ced8708"}],
+      "labeling_basis": "Manual review: the QA-mapped balance sheet preserves the December 31, 2023 and June 30, 2023 columns."
+    },
+    {
+      "case_id": "annual-income-statement-tables-2024",
+      "status": "answerable",
+      "question": "Find the Apple and Microsoft annual income-statement tables for fiscal 2024.",
+      "filters": {},
+      "expected_relevant_evidence": [
+        {"evidence_type": "table", "table_evidence_id": "85109057fb445f0ea176a2fb", "document_id": "aapl-2024-10k", "source_sha256": "e0bc42702340d5316957d92f725f9435309aaa1037146bfd6c83e49df6f99b70", "source_locator": "table:23", "original_html_table_index": 23, "parser_table_id": "44f6b730d1f15c83d77e2d67"},
+        {"evidence_type": "table", "table_evidence_id": "1dc1e8ea04e94724dff7471c", "document_id": "msft-2024-10k", "source_sha256": "0f3cb20a6557f53fcab3ca6348956ee70f7eca4d05a9c4184ecb6a8fa5cfb660", "source_locator": "table:25", "original_html_table_index": 25, "parser_table_id": "ec547345eb61413cb6e68bc6"}
+      ],
+      "labeling_basis": "Manual review: both records are the completed-QA annual income-statement candidates for their respective fiscal-2024 10-K filings."
+    },
+    {
+      "case_id": "aapl-2024-vision-pro-revenue-table",
+      "status": "unanswerable",
+      "question": "Which Apple fiscal 2024 table reports Apple Vision Pro revenue?",
+      "filters": {"ticker": "AAPL", "form_type": "10-K", "reporting_period_end": "2024-09-28"},
+      "expected_relevant_evidence": [],
+      "labeling_basis": "Manual review: no admitted structured table reports a standalone Apple Vision Pro revenue amount."
+    },
+    {
+      "case_id": "msft-2024-copilot-revenue-table",
+      "status": "unanswerable",
+      "question": "Which Microsoft fiscal 2024 table reports standalone Copilot revenue?",
+      "filters": {"ticker": "MSFT", "form_type": "10-K", "reporting_period_end": "2024-06-30"},
+      "expected_relevant_evidence": [],
+      "labeling_basis": "Manual review: no admitted structured table reports a standalone fiscal-2024 Copilot revenue amount."
+    }
+  ]
+}
