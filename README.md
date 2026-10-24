@@ -2,6 +2,12 @@
 
 An evidence-oriented financial research assistant for official SEC filings. It validates registered Apple and Microsoft filing HTML, extracts provenance-rich narrative and financial-table evidence, retrieves with PostgreSQL full-text and local vector search, and returns grounded answers with validated citations or explicit abstention.
 
+## Problem statement
+
+Financial analysts and researchers need to answer precise questions from long SEC filings, but the relevant evidence is distributed across narrative disclosures, risk factors, management discussion, and financial tables. Conventional keyword search can miss semantically related passages, while generic LLM answers can lose the filing, reporting period, units, signs, or table context behind a claim.
+
+This project solves the problem of producing traceable answers from a bounded corpus of official Apple and Microsoft filings. It validates and preserves filing structure, keeps narrative evidence separate from financial-table evidence, combines lexical and semantic retrieval, reranks the strongest candidates, and generates an answer only from supplied evidence. Every returned citation is resolved against trusted source metadata; when the corpus does not provide sufficient support, the system abstains instead of presenting an unsupported conclusion.
+
 ## Architecture
 
 ~~~mermaid
