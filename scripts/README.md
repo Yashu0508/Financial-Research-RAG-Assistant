@@ -31,12 +31,15 @@ is required:
 ```text
 LLM_PROVIDER=openai
 OPENAI_API_KEY=<secret>
-LLM_MODEL=gpt-5.4
+LLM_MODEL=gpt-6-astra
 LLM_TIMEOUT_SECONDS=30
 LLM_MAX_OUTPUT_TOKENS=800
 ```
 
 Install its optional dependency with `python -m pip install -e ".[generation]"`.
+The pinned SDK receives the configured timeout and at most two SDK-managed
+retries for retryable transient failures; it does not select another provider
+or model.
 The service imports the SDK lazily and tests use a fake provider, so no key or
 network call is required for ordinary validation. It accepts only bounded,
 admitted narrative evidence, validates source-hash provenance against a trusted

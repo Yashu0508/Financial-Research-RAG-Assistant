@@ -1101,3 +1101,26 @@ documented example is `gemini-2.5-flash`. Mocked generation/API/UI validation
 passed **35** tests (one existing warning), Ruff and compileall passed, and
 `.env` was confirmed ignored without reading or printing it. No Gemini request
 was made. Phase 10's final WSL and isolated integration reruns remain pending.
+
+### OpenAI GPT-6 migration
+
+The active documented generation configuration now uses the verified OpenAI API
+model ID `gpt-6-astra`, selected only through `LLM_PROVIDER=openai` and
+`OPENAI_API_KEY`. OpenAI's official model catalog identifies GPT-6 Astra as the
+flagship GPT-6 model and lists it as available through the Responses API; its
+official pricing page lists Standard short-context pricing of $10.00 input and
+$50.00 output per million tokens at the time of inspection. Account access and
+billing remain unverified until a separately authorized live request.
+
+The existing OpenAI Responses adapter was retained. It now passes the existing
+timeout and an explicit two-retry bound to the pinned `openai==3.34.0` SDK,
+which performs retryable transient-failure backoff and Retry-After handling.
+No provider/model fallback was added. Added mocked tests verify GPT-6 Astra
+request mapping, timeout/retry construction, empty output, and safe chained
+causes for representative provider failures. WSL focused generation/config
+tests passed **25**, the full WSL unit suite passed **140**, Ruff and compileall
+passed, and SEC registration validation reported all **10** sources VALID. No
+live OpenAI request, `.env` edit, database operation, source/artifact change,
+or benchmark change occurred. The exact configuration, official references,
+live smoke command, limitations, and next steps are in
+`docs/reports/OPENAI_GPT6_MIGRATION.md`.

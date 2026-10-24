@@ -9,7 +9,13 @@ from app.core.config import Settings
 from app.generation import GenerationConfiguration, GenerationRequest, NarrativeEvidence
 from app.generation.factory import GenerationConfigurationError, build_generation_service
 from app.generation.prompts.grounded import INSTRUCTIONS, build_provider_input
-from app.generation.providers import GeminiProvider, OpenAIResponsesProvider, ProviderError
+from app.generation.providers import (
+    GeminiProvider,
+    OpenAIResponsesProvider,
+    ProviderError,
+    ProviderRequest,
+)
+from app.generation.providers.openai_responses import MAX_OPENAI_RETRIES
 from app.generation.service import GroundedGenerationService
 
 
@@ -165,21 +171,113 @@ def test_openai_adapter_uses_one_explicit_model_and_never_falls_back():
     client = type("Client", (), {"responses": responses})()
     provider = OpenAIResponsesProvider("key", client=client)
     provider.complete(
-        type(
-            "Request",
-            (),
-            {
-                "model": "configured-model",
-                "instructions": "i",
-                "input_text": "x",
-                "max_output_tokens": 3,
-                "timeout_seconds": 1.0,
-            },
-        )()
+        ProviderRequest(
+            model="gpt-6-astra",
+            instructions="i",
+            input_text="x",
+            max_output_tokens=3,
+            timeout_seconds=1.0,
+        )
     )
 
-    assert responses.kwargs["model"] == "configured-model"
+    assert responses.kwargs == {
+        "model": "gpt-6-astra",
+        "instructions": "i",
+        "input": "x",
+        "max_output_tokens": 3,
+        "store": False,
+    }
     assert responses.kwargs["store"] is False
+
+
+def test_openai_adapter_configures_timeout_and_bounded_sdk_retries(monkeypatch):
+    class Responses:
+        def create(self, **_kwargs):
+            return type("Response", (), {"output_text": "{}"})()
+
+    class Client:
+        kwargs = None
+
+        def __init__(self, **kwargs):
+            type(self).kwargs = kwargs
+            self.responses = Responses()
+
+    import sys
+    import types
+
+    fake_sdk = types.ModuleType("openai")
+    fake_sdk.OpenAI = Client
+    monkeypatch.setitem(sys.modules, "openai", fake_sdk)
+
+    OpenAIResponsesProvider("key").complete(
+        ProviderRequest("gpt-6-astra", "i", "x", 3, 17.0)
+    )
+
+    assert Client.kwargs == {
+        "api_key": "key",
+        "timeout": 17.0,
+        "max_retries": MAX_OPENAI_RETRIES,
+    }
+
+
+@pytest.mark.parametrize(
+    "failure_name",
+    [
+        "AuthenticationError",
+        "PermissionDeniedError",
+        "NotFoundError",
+        "RateLimitError",
+        "InternalServerError",
+        "APITimeoutError",
+    ],
+)
+def test_openai_adapter_preserves_mocked_sdk_failure_as_cause(failure_name):
+    failure = type(failure_name, (Exception,), {})()
+
+    class Responses:
+        def create(self, **_kwargs):
+            raise failure
+
+    provider = OpenAIResponsesProvider(
+        "key", client=type("Client", (), {"responses": Responses()})()
+    )
+
+    with pytest.raises(ProviderError) as captured:
+        provider.complete(ProviderRequest("gpt-6-astra", "i", "x", 3, 1.0))
+
+    assert captured.value.__cause__ is failure
+
+
+def test_openai_adapter_rejects_empty_output():
+    class Responses:
+        def create(self, **_kwargs):
+            return type("Response", (), {"output_text": ""})()
+
+    provider = OpenAIResponsesProvider(
+        "key", client=type("Client", (), {"responses": Responses()})()
+    )
+
+    with pytest.raises(ProviderError, match="returned no text"):
+        provider.complete(ProviderRequest("gpt-6-astra", "i", "x", 3, 1.0))
+
+
+def test_openai_adapter_preserves_exhausted_sdk_retry_failure_without_retrying_again():
+    class Responses:
+        calls = 0
+
+        def create(self, **_kwargs):
+            type(self).calls += 1
+            raise RuntimeError("sdk retries exhausted")
+
+    provider = OpenAIResponsesProvider(
+        "key", client=type("Client", (), {"responses": Responses()})()
+    )
+
+    with pytest.raises(ProviderError) as captured:
+        provider.complete(ProviderRequest("gpt-6-astra", "i", "x", 3, 1.0))
+
+    assert Responses.calls == 1
+    assert isinstance(captured.value.__cause__, RuntimeError)
 
 
 def test_gemini_adapter_adapts_text_and_never_falls_back():

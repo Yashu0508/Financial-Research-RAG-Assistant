@@ -23,12 +23,12 @@ require neither the SDK nor a credential.
 ```text
 LLM_PROVIDER=openai
 OPENAI_API_KEY=<local secret only>
-LLM_MODEL=gpt-5.4
+LLM_MODEL=gpt-6-astra
 LLM_TIMEOUT_SECONDS=30
 LLM_MAX_OUTPUT_TOKENS=800
 ```
 
-`gpt-5.4` is the single documented configured model; an unavailable model or
+`gpt-6-astra` is the single documented configured model; an unavailable model or
 account access failure is a provider failure, never a silent substitution.
 `OPENAI_API_KEY` is read as a secret and is never logged or serialized. Legacy
 `LLM_API_KEY` is accepted only as a configuration alias. Importing application

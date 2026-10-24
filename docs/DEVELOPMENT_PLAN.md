@@ -102,7 +102,7 @@ Each phase begins only after its dependencies and prior acceptance criteria are 
 
 ## 8. Grounded generation, citations, and abstention
 
-- **Status:** Implemented with a provider-neutral, narrative-only contract and explicitly configured OpenAI Responses and Gemini adapters. Fake-provider tests cover citation identity/provenance validation and explicit abstentions; no live provider call has been authorized or executed. Citation validation does not establish claim entailment. API/UI integration remains Phase 9.
+- **Status:** Implemented with a provider-neutral, narrative-only contract and an explicitly configured OpenAI Responses adapter. The active documented configuration is `gpt-6-astra`; the pinned SDK uses bounded retries for transient failures. Fake-provider tests cover citation identity/provenance validation, provider errors, and explicit abstentions; live OpenAI access remains unverified. Citation validation does not establish claim entailment.
 - **Objective:** Generate only from supplied evidence and return verified citations or an explicit abstention.
 - **Dependencies:** Stable ranked evidence contract; chosen provider protocol and evaluation cases.
 - **Deliverables:** Provider-independent interface, one separately configured adapter, prompts, citation resolver/validator, abstention policy, tests.

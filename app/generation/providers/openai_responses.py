@@ -6,6 +6,8 @@ from typing import Any
 
 from .base import ProviderError, ProviderRequest
 
+MAX_OPENAI_RETRIES = 2
+
 
 class OpenAIResponsesProvider:
     """One explicitly configured provider; never falls back to another model."""
@@ -22,7 +24,13 @@ class OpenAIResponsesProvider:
             if client is None:
                 from openai import OpenAI
 
-                client = OpenAI(api_key=self._api_key, timeout=request.timeout_seconds)
+                # The pinned SDK applies bounded exponential backoff and honors
+                # Retry-After for its retryable transport/status failures.
+                client = OpenAI(
+                    api_key=self._api_key,
+                    timeout=request.timeout_seconds,
+                    max_retries=MAX_OPENAI_RETRIES,
+                )
             response = client.responses.create(
                 model=request.model,
                 instructions=request.instructions,
