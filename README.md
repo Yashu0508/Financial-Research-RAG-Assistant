@@ -1,147 +1,163 @@
 # Financial Research RAG Assistant
 
-An evidence-first research project over ten locally registered Apple and Microsoft SEC filings. It currently provides immutable-source validation, structure-preserving parsing, guarded PostgreSQL evidence persistence, separate narrative and table retrieval baselines, local semantic retrieval, deterministic RRF fusion, and local bounded reranking.
+An evidence-oriented financial research assistant for official SEC filings. It validates registered Apple and Microsoft filing HTML, extracts provenance-rich narrative and financial-table evidence, retrieves with PostgreSQL full-text and local vector search, and returns grounded answers with validated citations or explicit abstention.
 
-> **Current status:** retrieval and a bounded provider-neutral grounded-generation contract are implemented. Citation identity/provenance validation and explicit abstention are implemented; claim-entailment validation, a query API, and a Streamlit UI are not. See the [roadmap](docs/DEVELOPMENT_PLAN.md) and [Phase 8 report](docs/reports/PHASE_8_GROUNDED_GENERATION.md).
+## Architecture
 
-## What is implemented
+~~~mermaid
+flowchart LR
+  SEC[Registered SEC HTML] --> V[Hash and metadata validation]
+  V --> P[Structure-preserving parser]
+  P --> E[Narrative chunks + table evidence]
+  E --> DB[(PostgreSQL + pgvector)]
+  DB --> K[Keyword retrieval]
+  DB --> S[Semantic narrative retrieval]
+  K --> R[RRF k=60]
+  S --> R
+  R --> X[Bounded cross-encoder reranking]
+  X --> C[Evidence context]
+  C --> G[OpenAI Responses adapter]
+  G --> CV[Citation/provenance validation]
+  CV --> A[Cited answer or abstention]
+  API[FastAPI POST /query] --> C
+  UI[Streamlit HTTP client] --> API
+~~~
 
-| Area | Status | Important boundary |
-| --- | --- | --- |
-| Registered SEC sources | Verified | Ten local source files are hash-checked; raw source bytes are never changed. |
-| Parsing and evidence preparation | Implemented | Narrative blocks and structured financial tables remain separate evidence types. |
-| PostgreSQL persistence | Implemented | Persistent development work is restricted to the configured non-public schema; isolated tests use generated schemas only. |
-| Narrative retrieval | Implemented | PostgreSQL keyword, local semantic, RRF, and bounded cross-encoder reranking are separate modes. |
-| Table retrieval | Implemented | Keyword-only structured table retrieval; it does not establish numeric/header semantics. |
-| Generation / citations / abstention | Implemented | Bounded narrative evidence only; citations resolve from trusted records, while factual entailment is not verified. |
-| HTTP query API / UI | Not implemented | The sole application endpoint is `GET /health`. |
+The ingestion path protects source identity before parsing. Narrative and table evidence remain separate through storage and retrieval. Narrative candidates can pass through semantic retrieval, RRF, and reranking; tables use a separate structured keyword contract. Generation receives bounded admitted narrative evidence, while application code resolves provider-returned evidence IDs to trusted metadata.
 
-## Supported environment
+## Workflow
 
-`pyproject.toml` requires Python `>=3.11,<3.14`. The complete retrieval workflow was most recently exercised in WSL Ubuntu with Python 3.12.3 and PostgreSQL 16 with pgvector 0.6.0. The Windows checkout supports source validation, lint, compilation, and tests when dependencies are installed; the documented persistent corpus workflow is WSL-oriented.
+1. Validate registered source metadata, byte size, and SHA-256.
+2. Parse valid SEC HTML while preserving sections, tables, locators, and provenance.
+3. Produce deterministic narrative chunks and structured tables; quarantine unreliable records.
+4. Persist admitted evidence and versioned narrative vectors in a guarded PostgreSQL schema.
+5. Accept a question with optional ticker, form, and reporting-period filters.
+6. Retrieve, fuse, and optionally rerank provenance-rich candidates.
+7. Build bounded context and call the configured provider.
+8. Validate citations and return an answer, warnings, or abstention.
 
-## Install
+## Retrieval and grounding
 
-Create an isolated environment and install the feature sets needed for the work you intend to run. `pyproject.toml` is canonical; `requirements.txt` installs only the project `dev` extra.
+Keyword retrieval supports exact filing terminology; local semantic retrieval supports related phrasing. RRF combines ranked lists with k=60, retaining branch ranks and deterministic tie-breaking. A bounded local cross-encoder reranks fused narrative candidates while preserving the original RRF score.
 
-```bash
-# WSL / Linux example, from the repository root
+The provider-neutral generation contract allows citations only to supplied evidence IDs. Unknown IDs, provenance mismatches, malformed output, provider failures, empty evidence, and unsupported questions become safe abstentions. Citation validation checks identity and provenance, not semantic claim entailment; the system does not claim hallucination-free generation.
+
+## Financial evidence
+
+Financial values are meaningful only with row labels, periods, units, signs, and column relationships. Parsed table records preserve displayed cell text, row/cell spans, locators, headings, period-header strings, and unit hints. Quarantine and admission are explicit. Tables are not flattened into ordinary narrative text, and header-to-cell association remains NOT_ESTABLISHED.
+
+## Technology stack
+
+| Technology | Purpose |
+|---|---|
+| Python 3.11–3.13 | Application, ingestion, retrieval, evaluation, and tests |
+| FastAPI / Uvicorn | Typed HTTP delivery |
+| PostgreSQL / pgvector | Evidence persistence, full-text, and vector search |
+| Beautiful Soup / lxml | SEC HTML parsing |
+| Sentence Transformers / PyTorch | Embeddings and local reranking |
+| OpenAI Responses API | Configured grounded-generation adapter |
+| Streamlit | Thin HTTP client UI |
+| pytest / Ruff | Tests and quality checks |
+
+## Repository structure
+
+~~~text
+app/api/          FastAPI routes, schemas, and query wiring
+app/core/         Settings
+app/ingestion/    Manifest validation, parsing, and chunking
+app/retrieval/    Keyword, semantic, table, hybrid, reranking
+app/storage/      PostgreSQL repositories and migrations
+app/generation/   Providers, prompts, citations, abstention
+app/evaluation/   Retrieval and answer contracts
+ui/               Streamlit client
+scripts/          Validation, persistence, search, evaluation CLIs
+data/             Manifest and versioned evaluation data
+docs/             Architecture, contracts, runbooks, reports
+tests/            Unit and opt-in PostgreSQL integration tests
+~~~
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md), [the SEC manifest](data/manifests/sec_documents.v1.json), and [scripts/README.md](scripts/README.md).
+
+## Corpus and setup
+
+The pilot corpus contains ten locally registered Apple and Microsoft filings: FY2022–FY2024 annual filings and available quarterly filings. It is a bounded dataset, not exhaustive SEC coverage.
+
+Prerequisites: Python 3.11–3.13, Git, PostgreSQL with pgvector installed, and exact local model snapshots for semantic retrieval/reranking.
+
+~~~bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev,storage,semantic,generation]"
-```
-
-For PowerShell activation, use `./.venv/Scripts/Activate.ps1`. The HTML parser dependencies are already part of `dev` and may also be installed with the explicit `verification` extra.
-
-## Local configuration and database safety
-
-Copy `.env.example` to ignored `.env` only after choosing a dedicated database, role, and non-public application schema. Never use `financial_rag_test` for the persistent corpus, and do not use `public` as the application schema.
-
-```text
-APP_ENV=development
-DATABASE_URL=dbname=financial_rag_dev user=<non_superuser_role>
-DEVELOPMENT_DATABASE_NAME=financial_rag_dev
-DEVELOPMENT_DATABASE_ROLE=<non_superuser_role>
-DEVELOPMENT_DATABASE_SCHEMA=financial_rag_dev
-SEMANTIC_MODEL_CACHE_DIR=/absolute/path/outside/the/repository/model-cache
-# Required only when making an authorized generation request:
-LLM_PROVIDER=openai
-OPENAI_API_KEY=<local secret only>
-LLM_MODEL=gpt-5.4
-LLM_TIMEOUT_SECONDS=30
-LLM_MAX_OUTPUT_TOKENS=800
-```
-
-PostgreSQL must be running and pgvector must already be installed by an administrator. The project neither creates a database/role nor enables the extension automatically. The guarded bootstrap validates the connected database/role, refuses `financial_rag_test` and `public`, creates only the named application schema when allowed, applies migrations in that schema, and performs idempotent corpus persistence:
-
-```bash
-python scripts/bootstrap_local_development_corpus.py
-```
-
-See [the local development database runbook](docs/LOCAL_DEVELOPMENT_DATABASE.md) for prerequisite commands, failure meanings, and its safety contract.
-
-## Immutable source and evidence workflow
-
-The following commands do not download filings or rewrite their raw HTML/companion directories.
-
-```bash
+python -m pip install -e ".[dev,storage,semantic,generation,ui]"
+cp .env.example .env
 python scripts/validate_sec_registration_manifest.py
 python scripts/parse_registered_sec_html.py
 python scripts/prepare_sec_evidence.py
-```
+python scripts/bootstrap_local_development_corpus.py
+~~~
 
-Parser output is versioned under `data/processed/sec_parsed/v1/`; prepared evidence is versioned under `data/processed/sec_evidence/v1/`. Recreating either is an explicit operation, not a prerequisite for read-only retrieval evaluation.
+For PowerShell activation use .\.venv\Scripts\Activate.ps1. The bootstrap refuses the disposable financial_rag_test database and public schema. Read [docs/LOCAL_DEVELOPMENT_DATABASE.md](docs/LOCAL_DEVELOPMENT_DATABASE.md) first.
 
-## Retrieval and evaluations
+## Configuration
 
-All commands below require the guarded development configuration and an already bootstrapped corpus. They are read-only. Use the v2 narrative dataset explicitly when comparing retrieval modes; the keyword evaluator defaults to the older v1 diagnostic dataset.
+Copy [.env.example](.env.example) to an ignored .env; never commit credentials.
 
-```bash
-# Narrative keyword
-python scripts/search_sec_evidence.py revenue --ticker AAPL --form-type 10-K --limit 5
-python scripts/evaluate_keyword_retrieval.py --dataset data/evaluation/keyword_retrieval.v2.json
+| Variable | Purpose | Required |
+|---|---|---|
+| APP_ENV | Guarded development workflow | Persistence |
+| DATABASE_URL | PostgreSQL target | Persistence |
+| DEVELOPMENT_DATABASE_NAME / ROLE / SCHEMA | Expected safe target identity | Persistence |
+| LLM_PROVIDER | Provider selection; active value is openai | Generation |
+| OPENAI_API_KEY | Local provider secret | Live generation |
+| LLM_MODEL | Active model: gpt-6-astra | Generation |
+| LLM_TIMEOUT_SECONDS | Provider timeout; default 30 | No |
+| LLM_MAX_OUTPUT_TOKENS | Output bound; default 800 | No |
+| SEMANTIC_MODEL_CACHE_DIR | Exact local model snapshots | Semantic retrieval |
+| SEMANTIC_EMBEDDING_BATCH_SIZE | Backfill batch size; default 16 | No |
 
-# Structured tables (separate result type and separate labels)
-python scripts/search_sec_tables.py revenue --ticker AAPL --form-type 10-K --limit 5
-python scripts/evaluate_table_retrieval.py
+## Usage
 
-# Local semantic / fusion / reranking narrative evaluations
-python scripts/evaluate_semantic_retrieval.py
-python scripts/evaluate_hybrid_retrieval.py --branch-depth 50
-python scripts/evaluate_hybrid_reranking.py --candidate-depth 50 --rerank-depth 20
-```
+~~~bash
+python -m uvicorn app.main:app --reload
+streamlit run ui/app.py
+~~~
 
-The narrative v2 dataset must hash to:
+POST /query accepts question (1–1000 characters), optional ticker, form_type (10-K/10-Q), and reporting_period_end. Responses contain status (answered/abstained), answer, citations, warnings, and an optional abstention reason. The Streamlit client sends HTTP only; it does not access the database, models, or provider SDK.
 
-```text
-d79de57f251a10de5797276e42b7d4fc6236124b9c268badc8477c538a6f1c9f
-```
+Example questions: How did cash from operations change across annual filings? Which supply-chain risks does a filing disclose? Which evidence supports a reported financial-statement value?
 
-Verify it without changing the file:
+## Evaluation
 
-```powershell
-(Get-FileHash data/evaluation/keyword_retrieval.v2.json -Algorithm SHA256).Hash.ToLower()
-```
+The canonical narrative dataset [keyword_retrieval.v2.json](data/evaluation/keyword_retrieval.v2.json) contains 20 answerable and 3 unanswerable manually judged cases. Unanswerable cases are excluded from retrieval denominators.
 
-Historical measurements and freshly reproduced measurements must be kept distinct. The latest Phase 8 reproduction results and methodology are in [the readiness audit](docs/reports/PHASE_8_READINESS_AUDIT.md). These small manually judged benchmarks are diagnostic; they do not establish production retrieval quality or financial correctness.
+| Mode | Recall@5 | Recall@10 | Precision@5 | MRR |
+|---|---:|---:|---:|---:|
+| Keyword | 0.05 | 0.05 | 0.01 | 0.05 |
+| Semantic | 0.65 | 0.90 | 0.14 | 0.5904 |
+| RRF | 0.65 | 0.90 | 0.14 | 0.5892 |
+| RRF + cross-encoder | 0.75 | 0.90 | 0.15 | 0.6972 |
 
-## Local models and offline operation
+The separate table keyword benchmark reports Recall@5/10 0.875/0.875, Precision@5 0.175, and MRR 0.71875 over eight answerable cases. These are diagnostic retrieval measurements, not financial accuracy, answer faithfulness, production quality, latency, or cost. See [Phase 10](docs/reports/PHASE_10_EVALUATION_HARDENING.md) and [Task 11](docs/reports/TASK_11_TABLE_KEYWORD_RETRIEVAL.md).
 
-Semantic retrieval requires the exact cached snapshot of `sentence-transformers/all-MiniLM-L6-v2` revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. Bounded reranking requires the exact cached snapshot of `cross-encoder/ms-marco-MiniLM-L6-v2` revision `233902d25c440f23af6f7d6e94d2946bac0bee0a`. Both loaders use exact local snapshot paths and `local_files_only=True`; they fail rather than downloading a substitute. Do not commit model weights or caches.
+## Testing
 
-## Verification
-
-```bash
+~~~bash
 python -m ruff check app scripts tests
 python -m compileall -q app scripts tests
 python -m pytest tests/unit -q
-# Requires TEST_POSTGRES_DSN and only creates generated evidence_test_* schemas:
+# Optional isolated PostgreSQL suite; requires TEST_POSTGRES_DSN
 python -m pytest tests/integration -q
-```
+~~~
 
-The integration suite belongs to the disposable `financial_rag_test` target and must never point at the persistent corpus. See [scripts/README.md](scripts/README.md) for the detailed CLI contracts.
+Integration tests create generated evidence_test_* schemas and must never target the persistent development corpus. Unit coverage includes ingestion, storage contracts, retrieval, generation/citation validation, API, and UI behavior. Live provider access is not implied by passing tests.
 
-## Existing application entry point
+## Limitations and security
 
-Only the health route exists today:
+The corpus is small and registered locally. Table header association is not established; table semantic retrieval is out of scope. Exact local model snapshots are required. Citation validation does not prove entailment. Live provider behavior, broader answer-quality evaluation, and production monitoring require additional authorized validation.
 
-```bash
-python -m uvicorn app.main:app --reload
-# GET http://127.0.0.1:8000/health
-```
+Keep .env and API keys outside version control. Use a dedicated non-test database and non-public schema. The application does not claim authentication, encryption, access isolation, or deletion guarantees not supported by the implementation.
 
-There is no query endpoint and no runnable Streamlit application. Those remain Phase 9 work.
+## License and references
 
-## Limitations
+Package metadata declares a proprietary license; no open-source license is asserted. References: [SEC EDGAR](https://www.sec.gov/edgar/search/), [SEC API documentation](https://www.sec.gov/edgar/sec-api-documentation), [pgvector](https://github.com/pgvector/pgvector), [FastAPI](https://fastapi.tiangolo.com/), [Sentence Transformers](https://www.sbert.net/), and [OpenAI Python API reference](https://developers.openai.com/api/reference/python/).
 
-- Retrieval is separate from generation. Generation validates citation identity and provenance, but does not prove factual claim entailment.
-- Narrative and table evidence have separate retrieval contracts and benchmarks; they are not mixed.
-- Table header association remains `NOT_ESTABLISHED`; no numeric interpretation is inferred.
-- Semantic/reranking model caches and PostgreSQL/pgvector are local prerequisites, not repository contents.
-- The evaluated corpus is limited to ten filings and small manually judged datasets.
-- A full Phase 7B live isolated-integration rerun has not yet been recorded after its implementation; see the audit for the exact validation status.
-
-## Roadmap
-
-The authoritative sequence is [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md). The actual next feature phase is Phase 8: grounded generation, citations, and abstention. Documentation/portfolio demonstration is Phase 11, not Phase 8.
